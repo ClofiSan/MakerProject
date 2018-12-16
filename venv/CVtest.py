@@ -8,7 +8,6 @@ img_data = request.content
 
 image = cv2.imdecode(np.fromstring(img_data, np.uint8), cv2.COLOR_GRAY2BGR)
 
-# height and width
 image_center = [image.shape[1]/2,image.shape[0]/2]
 
 

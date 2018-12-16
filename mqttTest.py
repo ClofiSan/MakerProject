@@ -43,8 +43,23 @@ for i in range(len(img_data)):
     data.append(img_data[i])
     Format += 'B'
 packed = s.pack(Format, *data)
+
+AsciiFront = open("FONT.BIN","rb")
+AsciiByte = AsciiFront.read(1024)
+
+print(AsciiByte)
+print(img_data)
+print(packed)
+Send = []
+format2 = ''
+# 是文件太大的问题
+for i in range(1024):
+    Send.append(img_data[i])
+    format2 += 'B'
+packed2 = s.pack(format2,*Send)
 mqtt_connect()
 while True:
     time.sleep(3)
-    print(packed)
-    on_publish('DeFace', img_data, 2)
+    # 为什么采用
+    on_publish('DeFace', packed2, 2)
+    # on_publish('DeFace',img_data, 2)
