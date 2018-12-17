@@ -7,10 +7,11 @@ import struct as s
 import time
 import json
 
-Control_Topic = 'DeFace'
-Get_Img_Topic = 'ImgRoad'
+Control_Topic = '888'
+Get_Img_Topic = '666'
 
 MQTTHOST = "119.23.227.254"
+# MQTTHOST = "192.168.253.1"
 MQTTPORT = 1883
 mqttClient = mqtt.Client()
 
@@ -61,9 +62,12 @@ class face_detect:
         return face_center
 
     def get_neck_control(self):
-        pos_x = self.face_center[0] - self.image_center[0]
-        pos_y = self.face_center[1] - self.image_center[1]
-        NeckControl = [{"L_R": pos_x, "U_D": pos_y}]
+        if self.faces is None:
+            NeckControl = [{"Deface":0,"L_R": 0, "U_D": 0}]
+        else :
+            pos_x = self.face_center[0] - self.image_center[0]
+            pos_y = self.face_center[1] - self.image_center[1]
+            NeckControl = [{"Deface":1,"L_R": pos_x, "U_D": pos_y}]
         NeckControl_json = json.dumps(NeckControl)
         return NeckControl_json
 
@@ -87,7 +91,7 @@ def on_message_come(Client, userdata, msg):
 
 def on_publish(topic, payload, qos):
     mqttClient.publish(topic, payload, qos)
-    print("Publish Successfully"+topic+payload)
+    print("Publish Successfully:"+topic+payload)
 
 
 def on_subscribe(topic):
@@ -97,14 +101,8 @@ def on_subscribe(topic):
 
 if __name__ == '__main__':
     mqtt_connect()
-    request = requests.get("https://images0.cnblogs.com/blog/383503/201501/092234176096410.jpg")
-    img_data = request.content
-    face_detect1 = face_detect(img_data)
-    neckcontrol = face_detect1.get_neck_control()
-    print(neckcontrol)
-    print(face_detect1.faces)
-    # while True:
-    #     time.sleep(2)
-    #     on_publish(Control_Topic,neckcontrol,2)
+    while True:
+        time.sleep(3)
+        on_subscribe(Get_Img_Topic)
 
 
