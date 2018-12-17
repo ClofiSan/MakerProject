@@ -16,7 +16,7 @@ mqttClient = mqtt.Client()
 
 
 class face_detect:
-    # 没有识别到该怎么办
+    # 没有识别到人脸该怎么办
     img_data = ''
     image = ''
     image_center = []
@@ -35,6 +35,7 @@ class face_detect:
         return image_center
 
     def detect_face(self,image):
+        # 假如faces没有会怎么样
         face_cascade = cv2.CascadeClassifier(r'./haarcascade_frontalface_default.xml')
         faces = face_cascade.detectMultiScale(
             image,
@@ -42,7 +43,11 @@ class face_detect:
             minNeighbors=5,
             minSize=(5, 5),
         )
-        return faces
+        if faces is None:
+            print("No face!")
+        else :
+            print("Detected Successfully")
+            return faces
 
     def get_face_center(self,faces):
         face_center = []
@@ -74,11 +79,15 @@ def on_message_come(Client, userdata, msg):
     if msg.topic == Get_Img_Topic:
         img_data = msg.payload
         face_detect1 = face_detect(img_data)
+        NeckControl = face_detect1.get_neck_control()
+        NeckControl_json = json.dumps(NeckControl)
+        on_publish(Control_Topic,NeckControl_json,2)
+
 
 
 def on_publish(topic, payload, qos):
     mqttClient.publish(topic, payload, qos)
-    print("Publish Successfully")
+    print("Publish Successfully"+topic+payload)
 
 
 def on_subscribe(topic):
@@ -93,8 +102,9 @@ if __name__ == '__main__':
     face_detect1 = face_detect(img_data)
     neckcontrol = face_detect1.get_neck_control()
     print(neckcontrol)
-    while True:
-        time.sleep(2)
-        on_publish(Control_Topic,neckcontrol,2)
+    print(face_detect1.faces)
+    # while True:
+    #     time.sleep(2)
+    #     on_publish(Control_Topic,neckcontrol,2)
 
 
